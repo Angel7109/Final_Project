@@ -41,9 +41,9 @@ function isAuthenticated(req, res, next) {
 
 // Add this route to your server.js
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  });
-  
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Authentication routes
 app.use('/api', authRoutes);
 
@@ -72,11 +72,10 @@ app.post('/api/tasks', isAuthenticated, (req, res) => {
 
   // Insert new task into the database
   const query = `
-  INSERT INTO tasks (user_id, title, description, due_date, status) 
-  VALUES ($1, $2, $3, $4, $5)
-`;
-const values = [req.session.user.id, title, description || '', due_date, status];
-
+    INSERT INTO tasks (user_id, title, description, due_date, status) 
+    VALUES ($1, $2, $3, $4, $5)
+  `;
+  const values = [req.session.user.id, title, description || '', due_date, status];
 
   db.query(query, values, (err, result) => {
     if (err) {
@@ -99,48 +98,50 @@ app.get('/api/logout', (req, res) => {
 
 // Route to delete a task
 app.delete('/api/tasks/:id', isAuthenticated, (req, res) => {
-    const { id } = req.params;
-    const query = 'DELETE FROM tasks WHERE id = ? AND user_id = ?';
-  
-    db.query(query, [id, req.session.user.id], (err, result) => {
-      if (err) {
-        console.error('Error deleting task:', err);
-        return res.status(500).send('Error deleting task');
-      }
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).send('Task not found');
-      }
-  
-      res.status(200).send('Task deleted successfully');
-    });
+  const { id } = req.params;
+  const query = `
+    DELETE FROM tasks 
+    WHERE id = $1 AND user_id = $2
+  `;
+  db.query(query, [id, req.session.user.id], (err, result) => {
+    if (err) {
+      console.error('Error deleting task:', err);
+      return res.status(500).send('Error deleting task');
+    }
+
+    if (result.rowCount === 0) { // For PostgreSQL, use rowCount to check if any rows were affected
+      return res.status(404).send('Task not found');
+    }
+
+    res.status(200).send('Task deleted successfully');
   });
-  
- // Route to update a task
+});
+
+// Route to update a task
 app.put('/api/tasks/:id', isAuthenticated, (req, res) => {
-    const { id } = req.params;
-    const { title, description, due_date, status } = req.body;
-  
-    const query = `
-      UPDATE tasks 
-      SET title = ?, description = ?, due_date = ?, status = ?
-      WHERE id = ? AND user_id = ?
-    `;
-    const values = [title, description || '', due_date, status, id, req.session.user.id];
-  
-    db.query(query, values, (err, result) => {
-      if (err) {
-        console.error('Error updating task:', err);
-        return res.status(500).send('Error updating task');
-      }
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).send('Task not found or not authorized to edit');
-      }
-  
-      res.status(200).send('Task updated successfully');
-    });
+  const { id } = req.params;
+  const { title, description, due_date, status } = req.body;
+
+  const query = `
+    UPDATE tasks 
+    SET title = $1, description = $2, due_date = $3, status = $4
+    WHERE id = $5 AND user_id = $6
+  `;
+  const values = [title, description || '', due_date, status, id, req.session.user.id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error updating task:', err);
+      return res.status(500).send('Error updating task');
+    }
+
+    if (result.rowCount === 0) { // For PostgreSQL, use rowCount to check if any rows were affected
+      return res.status(404).send('Task not found or not authorized to edit');
+    }
+
+    res.status(200).send('Task updated successfully');
   });
+});
 
 // Test database connection route
 app.get('/test-db', async (req, res) => {
