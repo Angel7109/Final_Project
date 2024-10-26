@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager - Login or Register</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-toggle">
+            <button id="show-login" onclick="toggleForms('login')">Login</button>
+            <button id="show-register" onclick="toggleForms('register')">Register</button>
+        </div>
+
+        <div class="login-box" id="login-box">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="login-username" name="username" placeholder="Enter your username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <div class="register-box" id="register-box" style="display: none;">
+            <h2>Register</h2>
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" placeholder="Enter your username" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript to handle form toggling -->
+    <script>
+        function toggleForms(formType) {
+            const loginBox = document.getElementById("login-box");
+            const registerBox = document.getElementById("register-box");
+
+            if (formType === "login") {
+                loginBox.style.display = "block";
+                registerBox.style.display = "none";
+            } else {
+                loginBox.style.display = "none";
+                registerBox.style.display = "block";
+            }
+        }
+    </script>
+
+    <!-- Existing JavaScript code to handle login and registration (not modified) -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Handle Login Form Submission
+        const loginForm = document.getElementById("login-form");
+        loginForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const username = document.getElementById("login-username").value.trim();
+          const password = document.getElementById("login-password").value.trim();
+
+          try {
+            const response = await fetch('/api/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ username, password }),
+            });
+
+            if (response.ok) {
+              window.location.href = "tasks.html";
+            } else {
+              const error = await response.text();
+              alert(`Login failed: ${error}`);
+            }
+          } catch (err) {
+            console.error('Error:', err);
+            alert('An error occurred while logging in.');
+          }
+        });
+
+        // Handle Registration Form Submission
+        const registerForm = document.getElementById("register-form");
+        registerForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const username = document.getElementById("register-username").value.trim();
+          const password = document.getElementById("register-password").value.trim();
+
+          try {
+            const response = await fetch('/api/register', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ username, password }),
+            });
+
+            if (response.ok) {
+              alert('Registration successful! Please log in.');
+            } else {
+              const error = await response.text();
+              alert(`Registration failed: ${error}`);
+            }
+          } catch (err) {
+            console.error('Error:', err);
+            alert('An error occurred while registering.');
+          }
+        });
+      });
+    </script>
+</body>
+</html>

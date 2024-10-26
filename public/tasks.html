@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager - Tasks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Your Task Manager</h1>
+        <nav>
+            <a href="index.html">Logout</a>
+        </nav>
+    </header>
+
+    <main class="task-container">
+        <h2>Your Tasks</h2>
+        <div class="task-list" id="task-list">
+            <!-- Dynamically populated tasks will go here -->
+        </div>
+
+        <h2>Add a New Task</h2>
+        <form id="task-form">
+            <div class="input-group">
+                <label for="task-title">Task Title</label>
+                <input type="text" id="task-title" name="task-title" placeholder="Enter task title" required>
+            </div>
+            <div class="input-group">
+                <label for="task-desc">Task Description</label>
+                <textarea id="task-desc" name="task-desc" placeholder="Enter task description"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="task-due-date">Due Date</label>
+                <input type="date" id="task-due-date" name="task-due-date" required>
+            </div>
+            <div class="input-group">
+                <label for="task-status">Status</label>
+                <select id="task-status" name="task-status" required>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In-Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            <button type="submit">Add Task</button>
+        </form>
+    </main>
+
+    <!-- JavaScript to handle tasks submission, updates, and dynamic display -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+  const taskForm = document.getElementById("task-form");
+  const taskList = document.getElementById("task-list");
+
+  // To keep track of editing state
+  let isEditMode = false;
+  let editTaskId = null;
+
+  // Function to fetch and display tasks
+const fetchTasks = async () => {
+  try {
+    const response = await fetch('/api/tasks');
+    const tasks = await response.json();
+    taskList.innerHTML = ""; // Clear existing tasks
+
+    tasks.forEach((task) => {
+      // Format the due date to YYYY-MM-DD
+      const formattedDueDate = new Date(task.due_date).toISOString().split('T')[0];
+
+      const taskItem = document.createElement("div");
+      taskItem.classList.add("task-item");
+      taskItem.innerHTML = `
+        ${task.title}: ${task.description || "No description"} - Due: ${formattedDueDate} - Status: ${task.status}
+        <button onclick="editTask(${task.id}, '${task.title}', '${task.description}', '${formattedDueDate}', '${task.status}')">Edit</button>
+        <button onclick="deleteTask(${task.id})">Delete</button>
+      `;
+      taskList.appendChild(taskItem);
+    });
+  } catch (err) {
+    console.error('Error fetching tasks:', err);
+    alert('Could not load tasks.');
+  }
+};
+
+
+  // Call fetchTasks to load tasks on page load
+  fetchTasks();
+
+  // Handle form submission for adding/updating a task
+  taskForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const title = document.getElementById("task-title").value.trim();
+    const description = document.getElementById("task-desc").value.trim();
+    const dueDate = document.getElementById("task-due-date").value;
+    const status = document.getElementById("task-status").value;
+
+    if (!title) {
+      return alert("Task title is required");
+    }
+
+    try {
+      let response;
+      if (isEditMode) {
+        // Update existing task
+        response = await fetch(`/api/tasks/${editTaskId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, description, due_date: dueDate, status }),
+        });
+      } else {
+        // Add new task
+        response = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, description, due_date: dueDate, status }),
+        });
+      }
+
+      if (response.ok) {
+        fetchTasks(); // Refresh the task list after adding/updating a task
+        taskForm.reset(); // Clear form inputs
+        isEditMode = false; // Reset edit mode
+        editTaskId = null; // Clear the task being edited
+        taskForm.querySelector('button').textContent = "Add Task"; // Reset button text
+      } else {
+        const error = await response.text();
+        alert(`Failed to ${isEditMode ? 'update' : 'add'} task: ${error}`);
+      }
+    } catch (err) {
+      console.error(`Error ${isEditMode ? 'updating' : 'adding'} task:`, err);
+      alert(`An error occurred while ${isEditMode ? 'updating' : 'adding'} the task.`);
+    }
+  });
+
+  // Handle task deletion
+  window.deleteTask = async (taskId) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchTasks(); // Refresh the task list after deleting a task
+      } else {
+        const error = await response.text();
+        alert(`Failed to delete task: ${error}`);
+      }
+    } catch (err) {
+      console.error('Error deleting task:', err);
+      alert('An error occurred while deleting the task.');
+    }
+  };
+
+  // Handle task editing
+  window.editTask = (taskId, title, description, dueDate, status) => {
+    // Set the form values to the task's data
+    document.getElementById("task-title").value = title;
+    document.getElementById("task-desc").value = description;
+    document.getElementById("task-due-date").value = dueDate;
+    document.getElementById("task-status").value = status;
+
+    // Switch form to Edit Mode
+    isEditMode = true;
+    editTaskId = taskId;
+    taskForm.querySelector('button').textContent = "Update Task";
+  };
+});
+
+    </script>
+</body>
+</html>
