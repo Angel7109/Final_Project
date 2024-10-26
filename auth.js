@@ -21,7 +21,7 @@ router.post('/register', (req, res) => {
     return res.status(400).send('Password must be at least 8 characters long and contain an uppercase letter, a lowercase letter, and a number.');
   }
 
-  // Check if the username is already taken
+  // Check if username is already taken
   const query = 'SELECT * FROM users WHERE username = $1';
   db.query(query, [username], (err, result) => {
     if (err) {
@@ -38,7 +38,7 @@ router.post('/register', (req, res) => {
         return res.status(500).send('Error hashing password');
       }
 
-      // Insert the new user into the database
+      // Insert new user into the database
       const insertQuery = 'INSERT INTO users (username, password) VALUES ($1, $2)';
       db.query(insertQuery, [username, hash], (err, result) => {
         if (err) {

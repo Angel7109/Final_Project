@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="app-title">Task Management App</h1> <!-- Add this line for the title -->
+        <h1 class="app-title">Task Management App</h1> <!-- title -->
 
         <div class="form-toggle">
             <button id="show-login" onclick="toggleForms('login')">Login</button>
@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <!-- JavaScript to handle form toggling -->
+    <!-- JS to handle form toggling -->
     <script>
         function toggleForms(formType) {
             const loginBox = document.getElementById("login-box");
@@ -61,7 +61,7 @@
         }
     </script>
 
-    <!-- Existing JavaScript code to handle login and registration (not modified) -->
+    <!-- JS to handle login and registration -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // Handle Login Form Submission
@@ -92,7 +92,7 @@
           }
         });
 
-        // Handle Registration Form Submission
+        // Registration Form Submission
         const registerForm = document.getElementById("register-form");
         registerForm.addEventListener("submit", async (event) => {
           event.preventDefault();

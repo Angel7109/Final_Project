@@ -21,10 +21,10 @@ app.use(express.json());
 // Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configure session middleware with a 10-minute timeout
+// Session middleware with a 10-minute timeout
 app.use(
   session({
-    secret: 'mysecretkey', // Use a secure, random secret in a production environment
+    secret: 'mysecretkey',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false, maxAge: 10 * 60 * 1000 } // 10 minutes in milliseconds
@@ -39,7 +39,7 @@ function isAuthenticated(req, res, next) {
   return res.status(401).send('You need to log in to access this page');
 }
 
-// Add this route to your server.js
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 // Authentication routes
 app.use('/api', authRoutes);
 
-// Route to get all tasks (for the current user)
+// Route to get all tasks for the current user
 app.get('/api/tasks', isAuthenticated, (req, res) => {
   const query = `
     SELECT * FROM tasks 
@@ -58,7 +58,7 @@ app.get('/api/tasks', isAuthenticated, (req, res) => {
       console.error('Error fetching tasks:', err);
       return res.status(500).send('Error fetching tasks');
     }
-    res.json(results.rows); // For PostgreSQL, use .rows to access results
+    res.json(results.rows); 
   });
 });
 
@@ -109,7 +109,7 @@ app.delete('/api/tasks/:id', isAuthenticated, (req, res) => {
       return res.status(500).send('Error deleting task');
     }
 
-    if (result.rowCount === 0) { // For PostgreSQL, use rowCount to check if any rows were affected
+    if (result.rowCount === 0) { 
       return res.status(404).send('Task not found');
     }
 
@@ -135,7 +135,7 @@ app.put('/api/tasks/:id', isAuthenticated, (req, res) => {
       return res.status(500).send('Error updating task');
     }
 
-    if (result.rowCount === 0) { // For PostgreSQL, use rowCount to check if any rows were affected
+    if (result.rowCount === 0) { 
       return res.status(404).send('Task not found or not authorized to edit');
     }
 

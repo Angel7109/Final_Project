@@ -16,7 +16,7 @@
     <main class="task-container">
         <h2>Your Tasks</h2>
         <div class="task-list" id="task-list">
-            <!-- Dynamically populated tasks will go here -->
+            <!-- Tasks added dynamically go here -->
         </div>
 
         <h2>Add a New Task</h2>
@@ -45,17 +45,17 @@
         </form>
     </main>
 
-    <!-- JavaScript to handle tasks submission, updates, and dynamic display -->
+    <!-- JS to handle task submission, update, and dynamic display -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
   const taskForm = document.getElementById("task-form");
   const taskList = document.getElementById("task-list");
 
-  // To keep track of editing state
+  // EDITING STATE
   let isEditMode = false;
   let editTaskId = null;
 
-  // Function to fetch and display tasks
+  // FETCH AND DISPLAY TASKS
 const fetchTasks = async () => {
   try {
     const response = await fetch('/api/tasks');
@@ -63,7 +63,7 @@ const fetchTasks = async () => {
     taskList.innerHTML = ""; // Clear existing tasks
 
     tasks.forEach((task) => {
-      // Format the due date to YYYY-MM-DD
+      // FORMAT due date to YYYY-MM-DD
       const formattedDueDate = new Date(task.due_date).toISOString().split('T')[0];
 
       const taskItem = document.createElement("div");
@@ -82,7 +82,7 @@ const fetchTasks = async () => {
 };
 
 
-  // Call fetchTasks to load tasks on page load
+  // FetchTasks to load tasks on page load
   fetchTasks();
 
   // Handle form submission for adding/updating a task
