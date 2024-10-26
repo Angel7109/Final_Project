@@ -31,6 +31,11 @@ function isAuthenticated(req, res, next) {
   return res.status(401).send('You need to log in to access this page');
 }
 
+// Add this route to your server.js
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+  });
+  
 // Authentication routes
 app.use('/api', authRoutes);
 
