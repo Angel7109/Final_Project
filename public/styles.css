@@ -125,3 +125,10 @@ button:hover {
     border-radius: 4px;
     margin-bottom: 10px;
 }
+
+.app-title {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
