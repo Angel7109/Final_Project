@@ -50,15 +50,15 @@ app.use('/api', authRoutes);
 // Route to get all tasks (for the current user)
 app.get('/api/tasks', isAuthenticated, (req, res) => {
   const query = `
-  SELECT * FROM tasks 
-  WHERE user_id = $1
-`;
+    SELECT * FROM tasks 
+    WHERE user_id = $1
+  `;
   db.query(query, [req.session.user.id], (err, results) => {
     if (err) {
       console.error('Error fetching tasks:', err);
       return res.status(500).send('Error fetching tasks');
     }
-    res.json(results);
+    res.json(results.rows); // For PostgreSQL, use .rows to access results
   });
 });
 
