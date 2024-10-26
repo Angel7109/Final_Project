@@ -22,13 +22,13 @@ router.post('/register', (req, res) => {
   }
 
   // Check if the username is already taken
-  const query = 'SELECT * FROM users WHERE username = ?';
-  db.query(query, [username], (err, results) => {
+  const query = 'SELECT * FROM users WHERE username = $1';
+  db.query(query, [username], (err, result) => {
     if (err) {
       return res.status(500).send('Error checking user existence');
     }
 
-    if (results.length > 0) {
+    if (result.rows.length > 0) {
       return res.status(400).send('Username already exists');
     }
 
@@ -39,7 +39,7 @@ router.post('/register', (req, res) => {
       }
 
       // Insert the new user into the database
-      const insertQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
+      const insertQuery = 'INSERT INTO users (username, password) VALUES ($1, $2)';
       db.query(insertQuery, [username, hash], (err, result) => {
         if (err) {
           return res.status(500).send('Error saving user');
@@ -55,17 +55,17 @@ router.post('/login', (req, res) => {
   const { username, password } = req.body;
 
   // Find the user by username
-  const query = 'SELECT * FROM users WHERE username = ?';
-  db.query(query, [username], (err, results) => {
+  const query = 'SELECT * FROM users WHERE username = $1';
+  db.query(query, [username], (err, result) => {
     if (err) {
       return res.status(500).send('Error finding user');
     }
 
-    if (results.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(400).send('User not found');
     }
 
-    const user = results[0];
+    const user = result.rows[0];
 
     // Compare the entered password with the hashed password in the database
     bcrypt.compare(password, user.password, (err, isMatch) => {
