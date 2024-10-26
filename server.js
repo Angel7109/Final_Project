@@ -49,7 +49,10 @@ app.use('/api', authRoutes);
 
 // Route to get all tasks (for the current user)
 app.get('/api/tasks', isAuthenticated, (req, res) => {
-  const query = 'SELECT * FROM tasks WHERE user_id = ?';
+  const query = `
+  SELECT * FROM tasks 
+  WHERE user_id = $1
+`;
   db.query(query, [req.session.user.id], (err, results) => {
     if (err) {
       console.error('Error fetching tasks:', err);
@@ -68,8 +71,12 @@ app.post('/api/tasks', isAuthenticated, (req, res) => {
   }
 
   // Insert new task into the database
-  const query = 'INSERT INTO tasks (user_id, title, description, due_date, status) VALUES (?, ?, ?, ?, ?)';
-  const values = [req.session.user.id, title, description || '', due_date, status];
+  const query = `
+  INSERT INTO tasks (user_id, title, description, due_date, status) 
+  VALUES ($1, $2, $3, $4, $5)
+`;
+const values = [req.session.user.id, title, description || '', due_date, status];
+
 
   db.query(query, values, (err, result) => {
     if (err) {
